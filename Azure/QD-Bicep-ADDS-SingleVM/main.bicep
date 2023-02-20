@@ -207,3 +207,17 @@ resource PrimaryADDSVM 'Microsoft.Compute/virtualMachines/extensions@2022-08-01'
     }
   }
 }
+
+resource vnetDns 'Microsoft.Network/virtualNetworks@2022-07-01' = {
+  name: VNETName
+  properties: {
+    dhcpOptions: {
+      dnsServers: [
+        '8.8.8.8'
+      ]
+    }
+  }
+  dependsOn: [
+    PrimaryADDSVM
+  ]
+}
