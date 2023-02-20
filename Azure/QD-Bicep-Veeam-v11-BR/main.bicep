@@ -26,7 +26,7 @@ param SNet1Address string = '10.0.1.0/24'
 param VMSize string = 'Standard_D1_v2'
 
 @description(' Link to external script to configure the virtual machine')
-param fileurl string = '.\\Customise-Veeam-Backup.ps1'
+param fileurl string = 'https://raw.githubusercontent.com/nate8523/Cloud-Templates/main/Azure/QD-Bicep-Veeam-v11-BR/Customise-Veeam-Backup.ps1'
 
 resource networkSecurityGroup 'Microsoft.Network/networkSecurityGroups@2022-07-01' = {
   name: '${VMName}-NSG-01'
