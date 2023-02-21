@@ -200,7 +200,7 @@ resource PrimaryADDSVM 'Microsoft.Compute/virtualMachines/extensions@2022-08-01'
     typeHandlerVersion: '2.19'
     autoUpgradeMinorVersion: true
     settings: {
-      ModulesUrl: 'https://raw.githubusercontent.com/nate8523/Cloud-Templates/main/Azure/QD-Bicep-ADDS-SingleVM/DSC/CreateADPrimaryDC.zip'
+      ModulesUrl: 'https://raw.githubusercontent.com/nate8523/Cloud-Templates/main/Azure/QD-Bicep-ADDS-DualVM-HA/DSC/CreateADPrimaryDC.zip'
       ConfigurationFunction: 'CreateADPrimaryDC.ps1\\CreateADPrimaryDC'
       Properties: {
         DomainName: DomainName
@@ -247,7 +247,7 @@ resource AdditionalADDSVM 'Microsoft.Compute/virtualMachines/extensions@2022-08-
     typeHandlerVersion: '2.19'
     autoUpgradeMinorVersion: true
     settings: {
-      ModulesUrl: 'https://raw.githubusercontent.com/nate8523/Cloud-Templates/main/Azure/QD-Bicep-ADDS-SingleVM/DSC/CreateADAdditionalDC.zip'
+      ModulesUrl: 'https://raw.githubusercontent.com/nate8523/Cloud-Templates/main/Azure/QD-Bicep-ADDS-DualVM-HA/DSC/CreateADAdditionalDC.zip'
       ConfigurationFunction: 'CreateADAdditionalDC.ps1\\CreateADAdditionalDC'
       Properties: {
         DomainName: DomainName
