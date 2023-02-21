@@ -4,7 +4,7 @@
   Script Summary:   This script is used to provision a single VM configured as an Active Directory Domain Controller (ADDS) in Azure 
 
 .DESCRIPTION
-  The script Provisons the follwoing Resources:
+  The script Provisons the following Resources:
     * A New Resource Group for the deployment
     * A Virtual Network and 1 Subnets
     * A virtual Machine with one NIC

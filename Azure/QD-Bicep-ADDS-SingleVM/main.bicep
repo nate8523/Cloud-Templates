@@ -17,12 +17,12 @@ param VMDiagStoreKind string = 'Storage'
 param VMDiagStoreSKU string = 'Standard_LRS'
 
 @description('Name and IP address range of the Virtual Network')
-param VNETName string = 'ADDS-VNET-01'
-param VNetAddress string = '10.0.0.0/22'
+param virtualNetworkName string = 'ADDS-VNET-01'
+param virtualNetworkAddress string = '10.0.0.0/22'
 
 @description('Name and IP address range of the Subnet 1')
-param SNET1Name string = 'ADDS-SNET-01'
-param SNet1Address string = '10.0.1.0/24'
+param subnetName string = 'ADDS-SNET-01'
+param subnetAddress string = '10.0.1.0/24'
 
 @description('name of the veeam virtual machine')
 param VMName string = 'ADDS01'
@@ -50,7 +50,20 @@ param OSVersion string = '2022-datacenter'
 @description('SKU of the OS and Data Disks')
 param OSDiskStorage string = 'Standard_LRS'
 
+@description('name of the new internal domain')
 param DomainName string = 'domain.co.uk'
+
+@description('IP Addresses of the initial DNS Servers')
+var dnsServerIPAddress = [
+  '8.8.8.8'
+  '4.4.4.4'
+]
+
+@description('IP Addresses of the DNS Servers of the domain controllers')
+var DomaindnsServerIPAddress = [
+  '10.0.1.4'
+  '10.0.1.5'
+]
 
 resource VMDiagStorage 'Microsoft.Storage/storageAccounts@2022-09-01' = {
   name: toLower(VMDiagStoreName)
@@ -62,24 +75,17 @@ resource VMDiagStorage 'Microsoft.Storage/storageAccounts@2022-09-01' = {
   }
 }
 
-resource virtualNetworkName 'Microsoft.Network/virtualNetworks@2022-07-01' = {
-  name: VNETName
-  location: location
-  properties: {
-    addressSpace: {
-      addressPrefixes: [
-        VNetAddress        
-      ]
-    }
-    subnets: [
-      {
-        name: SNET1Name
-        properties: {
-          addressPrefix: SNet1Address
-        }
-      }
-    ]
-}
+module virtualNetwork 'Modules/VirtualNetwork.bicep' ={
+  name: 'VNET-Deploy'
+    params: {
+    location: location
+    tagValues: tagValues
+    virtualNetworkName: virtualNetworkName
+    virtualNetworkAddress: virtualNetworkAddress
+    subnetName: subnetName
+    subnetAddress: subnetAddress
+    dnsServerIPAddress: dnsServerIPAddress
+  }
 }
 
 resource VMNic 'Microsoft.Network/networkInterfaces@2022-07-01' = {
@@ -93,7 +99,7 @@ resource VMNic 'Microsoft.Network/networkInterfaces@2022-07-01' = {
         properties: {
           privateIPAllocationMethod: 'Dynamic'
           subnet: {
-            id: '${virtualNetworkName.id}/subnets/${SNET1Name}'
+            id: '${virtualNetwork.outputs.virtualNetworkId}/subnets/${virtualNetwork.outputs.virtualSubnetName}'
           }
         }
       }
@@ -104,6 +110,7 @@ resource VMNic 'Microsoft.Network/networkInterfaces@2022-07-01' = {
 resource availabilitySet 'Microsoft.Compute/availabilitySets@2019-03-01' = {
   location: location
   name: AvailabilitySetName
+  tags: tagValues
   properties: {
     platformUpdateDomainCount: 20
     platformFaultDomainCount: 2
@@ -116,6 +123,7 @@ resource availabilitySet 'Microsoft.Compute/availabilitySets@2019-03-01' = {
 resource VirtualMachine 'Microsoft.Compute/virtualMachines@2022-08-01' = {
   name: VMName
   location: location
+  tags: tagValues
   properties: {
     osProfile: {
       computerName: VMName
@@ -175,7 +183,7 @@ resource VirtualMachine 'Microsoft.Compute/virtualMachines@2022-08-01' = {
     }
   }
   dependsOn: [
-    virtualNetworkName
+    virtualNetwork
   ]
 }
 
@@ -206,4 +214,19 @@ resource PrimaryADDSVM 'Microsoft.Compute/virtualMachines/extensions@2022-08-01'
       }
     }
   }
+}
+module UpdateVNetDNS 'Modules/VirtualNetwork.bicep' = {
+  name: 'UpdateVNetDNS'
+  params: {
+    tagValues: tagValues
+    virtualNetworkName: virtualNetworkName
+    virtualNetworkAddress: virtualNetworkAddress
+    subnetName: subnetName
+    subnetAddress: subnetAddress
+    dnsServerIPAddress: DomaindnsServerIPAddress
+    location: location
+  }
+  dependsOn: [
+    PrimaryADDSVM
+  ]
 }
