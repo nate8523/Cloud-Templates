@@ -31,7 +31,7 @@ param VMName string = 'ADDS'
 param AvailabilitySetName string = 'ADDS-AVSET-01'
 
 @description(' Number of Virtual Machines to be deployed')
-param vmCount int = 1
+param vmCount int = 2
 
 @description('Size of the ADDS VM')
 @allowed([

@@ -8,7 +8,7 @@ var tagValues = {
 }
 
 @description('Recovery Services vault name')
-param RecoveryVaultName string = 'm247vault01'
+param RecoveryVaultName string = 'vault01'
 
 @description('Storage replication type for Recovery Services vault')
 @allowed([
